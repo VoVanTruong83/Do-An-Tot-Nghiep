@@ -94,6 +94,7 @@ byte PassWord[6];
 byte CheckingRFID[4];
 byte NumerOfCard=0;
 byte DeleteCardIndex;
+byte AddCardIndex;
 
 Servo DoorServo;
 
@@ -221,7 +222,7 @@ void DeleteOldCard(byte CardIndexToDelete) // hàm xóa 1 thẻ trong EEPROM
 }
 
 
-String PhoneNumber1 = "+84768897635"; //-> So dien thoai may chu nhan 
+String PhoneNumber1 = "+84969990481"; //-> So dien thoai may chu nhan 
 
 // biến lưu trạng thái GSM 
 bool GSMModuleStatus=false;
@@ -878,19 +879,30 @@ void loop() {
 
    if(RFIDActive==YES&&CurrentState==STASETUPCARD) // nếu cờ RFID được bật có thẻ thì và đang ở chế độ thêm thẻ mới thì xử lý thêm thẻ mới
    {
-    SaveCardToEEPROM();
-    LCDDisplay.setCursor(3,1);
-    LCDDisplay.print("DA THEM THE!");
-    LCDDisplay.write(NumerOfCard+48);
-    CurrentRFID[0]=0;
-    CurrentRFID[1]=0;
-    CurrentRFID[2]=0;
-    CurrentRFID[3]=0;
-    Beep(1);
-    delay(1000);
-    RFIDActive=NO;
-    CurrentState=STAMAIN;
-    DisplayMain();
+    AddCardIndex = CheckRFIDCardToUnlock();
+    if(AddCardIndex==0xFF)
+    {
+      SaveCardToEEPROM();
+      LCDDisplay.setCursor(3,1);
+      LCDDisplay.print("DA THEM THE!");
+      LCDDisplay.write(NumerOfCard+48);
+      CurrentRFID[0]=0;
+      CurrentRFID[1]=0;
+      CurrentRFID[2]=0;
+      CurrentRFID[3]=0;
+      Beep(1);
+      delay(1000);
+      RFIDActive=NO;
+      CurrentState=STAMAIN;
+      DisplayMain();
+    }
+    else
+    {
+      LCDDisplay.setCursor(3,1);
+      LCDDisplay.print("THE DA T.TAI ");
+      Beep(3);
+      delay(1000); 
+    }
    }
 
    if(RFIDActive==YES&&CurrentState==STADELETECARD) // nếu cờ RFID được bật có thẻ thì và đang ở chế độ xóa thẻ  thì xử lý xóa thẻ
